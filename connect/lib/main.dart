@@ -1,9 +1,23 @@
+import 'package:connect/helper/constants.dart';
 import 'package:connect/helper/helper_functions.dart';
 import 'package:connect/pages/home_page.dart';
 import 'package:connect/pages/login_page.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+        options: FirebaseOptions(
+            apiKey: Constants.apiKey,
+            appId: Constants.appId,
+            messagingSenderId: Constants.messagingSenderId,
+            projectId: Constants.projectId));
+  } else {
+    await Firebase.initializeApp();
+  }
   runApp(const Connect());
 }
 
