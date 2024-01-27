@@ -1,3 +1,4 @@
+import 'package:connect/helper/helper_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -19,4 +20,14 @@ class AuthService {
   }
 
   //logout
+  Future signOut() async {
+    try {
+      await HelperFunction.saveUserLoggedInStatus(false);
+      await HelperFunction.saveUserEmailSF("");
+      await HelperFunction.saveUserNameSF("");
+      await firebaseAuth.signOut();
+    } catch (e) {
+      return null;
+    }
+  }
 }

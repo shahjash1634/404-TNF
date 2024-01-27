@@ -212,7 +212,7 @@ class _LoginPageState extends State<LoginPage> {
           //saving value to our sf
           await HelperFunction.saveUserLoggedInStatus(true);
           await HelperFunction.saveUserEmailSF(email);
-          await HelperFunction.saveUserNameSF(snapshot.docs[0]['Name']);
+          //await HelperFunction.saveUserNameSF(snapshot.docs[0]['Name']);
 
           // ignore: use_build_context_synchronously
           nextScreenReplace(context, const HomePage());
