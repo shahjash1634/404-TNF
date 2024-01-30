@@ -33,7 +33,9 @@ class _ConnectState extends State<Connect> {
   getUserLogedInStatus() async {
     await HelperFunction.getUserLogedInStatus().then((value) {
       if (value != null) {
-        _isSignedIn = value;
+        setState(() {
+          _isSignedIn = value;
+        });
       }
     });
   }
