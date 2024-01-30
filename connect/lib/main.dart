@@ -33,7 +33,9 @@ class _ConnectState extends State<Connect> {
   getUserLogedInStatus() async {
     await HelperFunction.getUserLogedInStatus().then((value) {
       if (value != null) {
-        _isSignedIn = value;
+        setState(() {
+          _isSignedIn = value;
+        });
       }
     });
   }
@@ -48,7 +50,7 @@ class _ConnectState extends State<Connect> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: _isSignedIn ? const HomePage() : const LoginPage(),
+      home: _isSignedIn ? HomePage() : const LoginPage(),
     );
   }
 }

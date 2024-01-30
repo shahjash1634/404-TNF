@@ -1,4 +1,5 @@
 import 'package:connect/helper/helper_functions.dart';
+import 'package:connect/services/database_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -12,6 +13,7 @@ class AuthService {
           .user;
 
       if (user != null) {
+        await DatabaseService(uid: user.uid).updateUserData(email, password);
         return true;
       }
     } on FirebaseAuthException catch (e) {
