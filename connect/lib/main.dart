@@ -2,6 +2,7 @@ import 'package:connect/helper/constants.dart';
 import 'package:connect/helper/helper_functions.dart';
 import 'package:connect/pages/home_page.dart';
 import 'package:connect/pages/login_page.dart';
+import 'package:connect/teacher/teacher_home_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ class Connect extends StatefulWidget {
 
 class _ConnectState extends State<Connect> {
   bool _isSignedIn = false;
+  bool _isTeacherSignedIn = false;
   getUserLogedInStatus() async {
     await HelperFunction.getUserLogedInStatus().then((value) {
       if (value != null) {
@@ -40,17 +42,32 @@ class _ConnectState extends State<Connect> {
     });
   }
 
+  getTeacherLogedInStatus() async {
+    await HelperFunction.getTeacherLogedInStatus().then((value) {
+      if (value != null) {
+        setState(() {
+          _isTeacherSignedIn = value;
+        });
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     getUserLogedInStatus();
+    getTeacherLogedInStatus();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: _isSignedIn ? HomePage() : const LoginPage(),
+      home: _isSignedIn
+          ? HomePage()
+          : _isTeacherSignedIn
+              ? TeacherHomePage()
+              : LoginPage(),
     );
   }
 }

@@ -8,6 +8,9 @@ class DatabaseService {
   final CollectionReference studentCollection =
       FirebaseFirestore.instance.collection("students");
 
+  final CollectionReference teacherCollection =
+      FirebaseFirestore.instance.collection("teachers");
+
   //updating the userdata
   Future updateUserData(String email, String password) async {
     var newEmail = email.split("@");
@@ -52,13 +55,33 @@ class DatabaseService {
       "branch": new2,
       "subjects": [],
       "uid": uid,
+      "role": "student",
     });
   }
+  Future updateTeacherData(String email, String password) async {
+    var newEmail = email.split("@");
+    var new2 = newEmail[1].substring(0, 2);
+    return await teacherCollection.doc(uid).set({
+      //"name": "-",
+      "email": email,
+      "branch": new2,
+      "classes": [],
+      "uid": uid,
+      "role": "teacher",
+    });
+  }
+
+  
 
   //getting user data
   Future gettingUserData(String email) async {
     QuerySnapshot snapshot =
         await studentCollection.where("email", isEqualTo: email).get();
+    return snapshot;
+  }
+  Future gettingTeacherData(String email) async {
+    QuerySnapshot snapshot =
+        await teacherCollection.where("email", isEqualTo: email).get();
     return snapshot;
   }
 }
