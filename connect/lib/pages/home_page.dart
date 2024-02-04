@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connect/pages/login_page.dart';
 import 'package:connect/pages/profile_page.dart';
 import 'package:connect/services/auth_service.dart';
@@ -12,19 +13,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
   Color myColor = const Color(0xFF2f3b61);
+  final _studentStream = FirebaseFirestore.instance
+      .collection("Branch")
+      .doc("IT")
+      .collection("sem3")
+      .snapshots();
 
-  Future<void> _launchURL(String url) async {
-    /*final Uri url = Uri.parse('172.18.116.11');
-    if (!await launchUrl(url)) {
-      throw Exception(
-          'Could not launch ,please ensure college wifi connection');
-    }
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }*/
-  }
+  Future<void> _launchURL(String url) async {}
 
   @override
   Widget build(BuildContext context) {
@@ -78,87 +73,6 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.pop(context);
                   },
-                ),
-                const Divider(),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 1',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 2',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 3',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 4',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 5',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 6',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 7',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                ),
-                Container(
-                  color: myColor,
-                  child: ListTile(
-                    title: const Text('Subject 8',
-                        style: TextStyle(color: Colors.white)),
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                  ),
                 ),
                 const Divider(),
                 ListTile(
@@ -238,12 +152,28 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         )),
-        body: ListView.builder(
-          padding: const EdgeInsets.all(8),
-          itemCount: 10,
-          itemBuilder: (context, index) {
-            return const SubjectWidget();
-          },
-        ));
+        body: StreamBuilder<QuerySnapshot>(
+            stream: _studentStream,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return Text("Connection error");
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              var docs = snapshot.data!.docs;
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(8),
+                itemCount: docs.length,
+                itemBuilder: (context, index) {
+                  String documentId = docs[index].id;
+                  return SubjectWidget(
+                    documentId: documentId,
+                  );
+                },
+              );
+            }));
   }
 }
