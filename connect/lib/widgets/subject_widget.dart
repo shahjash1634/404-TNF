@@ -2,7 +2,9 @@ import 'package:connect/pages/subject_page.dart';
 import 'package:flutter/material.dart';
 
 class SubjectWidget extends StatelessWidget {
-  const SubjectWidget({super.key});
+   final String documentId;
+
+  const SubjectWidget({Key? key, required this.documentId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,8 +22,7 @@ class SubjectWidget extends StatelessWidget {
               backgroundImage: AssetImage("assets/images/1.png"),
               radius: 25,
             ),
-            title: const Text(
-              "Subject",
+            title:  Text(documentId,
               style: TextStyle(fontSize: 22, color: Colors.white),
             ),
             subtitle: const Text(

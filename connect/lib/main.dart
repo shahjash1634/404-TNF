@@ -51,6 +51,10 @@ class _ConnectState extends State<Connect> {
       }
     });
   }
+  Future<String?> getUserEmail() async {
+    return await HelperFunction.getUserEmailSF();
+  }
+
 
   @override
   void initState() {
@@ -64,7 +68,21 @@ class _ConnectState extends State<Connect> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: _isSignedIn
-          ? HomePage()
+          ? FutureBuilder<String?>(
+              future: getUserEmail(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  // You can return a loading indicator if needed
+                  return CircularProgressIndicator();
+                } else if (snapshot.hasError) {
+                  // Handle the error
+                  return Text("Error: ${snapshot.error}");
+                } else {
+                  // Pass the email to the HomePage widget
+                  return HomePage(email: snapshot.data!);
+                }
+              },
+            )
           : _isTeacherSignedIn
               ? TeacherHomePage()
               : LoginPage(),
