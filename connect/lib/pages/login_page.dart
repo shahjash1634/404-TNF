@@ -22,7 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isLoading = false;
 
   AuthService authService = AuthService();
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,9 +216,9 @@ class _LoginPageState extends State<LoginPage> {
                 await HelperFunction.saveUserLoggedInStatus(true);
                 await HelperFunction.saveUserEmailSF(email);
                 //await HelperFunction.saveUserNameSF(snapshot.docs[0]['Name']);
-
+                
                 // ignore: use_build_context_synchronously
-                nextScreenReplace(context, HomePage());
+                nextScreenReplace(context, HomePage(email: email,));
               } else {
                 showSnackbar(context, Colors.red, value);
                 setState(() {
