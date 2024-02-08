@@ -19,7 +19,9 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
-  runApp(const Connect());
+  runApp(
+    const Connect(),
+  );
 }
 
 class Connect extends StatefulWidget {
@@ -51,10 +53,10 @@ class _ConnectState extends State<Connect> {
       }
     });
   }
+
   Future<String?> getUserEmail() async {
     return await HelperFunction.getUserEmailSF();
   }
-
 
   @override
   void initState() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:crypto/crypto.dart';
 
 void main() {
   runApp(ProfilePage());
@@ -8,7 +9,7 @@ class Profile {
   String name;
   String email;
   String bio;
-  String imageUrl;
+  String imageUrl; // This will now store the Gravatar URL
   String semester;
   String year;
   String course;
@@ -16,12 +17,17 @@ class Profile {
   Profile({
     required this.name,
     required this.email,
-    required this.bio,
-    required this.imageUrl,
+    this.bio = '',
     required this.semester,
     required this.year,
     required this.course,
-  });
+    required String imageUrl,
+  }) : imageUrl = _getGravatarUrl(email);
+
+  static String _getGravatarUrl(String email) {
+    final hash = md5.convert(email.trim().toLowerCase().codeUnits);
+    return 'https://www.gravatar.com/avatar/$hash?s=200'; // Adjust 's' parameter for size
+  }
 }
 
 class ProfilePage extends StatefulWidget {
@@ -34,15 +40,29 @@ class _ProfilePageState extends State<ProfilePage> {
     name: 'John Doe',
     email: 'john.doe@example.com',
     bio: 'Flutter Developer',
-    imageUrl: 'https://example.com/profile_image.jpg',
     semester: '5th',
     year: '3rd',
     course: 'Computer Science',
+    imageUrl: '',
   );
 
   @override
   Widget build(BuildContext context) {
     Color myColor = Color(0xFF2f3b61);
+
+    // Check if the logged-in user is 'mashah_b22@it.vjti.ac.in'
+    if (userProfile.email == 'mashah_b22@it.vjti.ac.in') {
+      userProfile = Profile(
+        name: 'Mashah B',
+        email: 'mashah_b22@it.vjti.ac.in',
+        bio: 'IT Student at VJTI',
+        semester: '6th',
+        year: '3rd',
+        course: 'Information Technology',
+        imageUrl: '',
+      );
+    }
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
@@ -63,7 +83,7 @@ class _ProfilePageState extends State<ProfilePage> {
           height: double.infinity,
           color: myColor,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(top: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -113,14 +133,12 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _editProfile(BuildContext context) async {
-    // Navigate to the profile editing page
     final updatedProfile = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => EditProfilePage(userProfile)),
     );
 
     if (updatedProfile != null) {
-      // Update the profile if the user made changes
       setState(() {
         userProfile = updatedProfile;
       });
@@ -162,7 +180,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Edit Profile'),
-        backgroundColor: Colors.blue, // Set the AppBar color to blue
+        backgroundColor: Colors.blue,
       ),
       body: Container(
         width: double.infinity,
@@ -227,7 +245,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   }
 
   void _saveChanges(BuildContext context) {
-    // Save the changes and navigate back to the profile page
     final updatedProfile = Profile(
       name: nameController.text,
       email: emailController.text,
