@@ -73,7 +73,7 @@ class _ConnectState extends State<Connect> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // You can return a loading indicator if needed
-                  return const CircularProgressIndicator();
+                  return Center(child: const CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   // Handle the error
                   return Text("Error: ${snapshot.error}");
