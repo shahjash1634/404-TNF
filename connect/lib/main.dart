@@ -18,7 +18,9 @@ void main() async {
   } else {
     await Firebase.initializeApp();
   }
-  runApp(const Connect());
+  runApp(
+    const Connect(),
+  );
 }
 
 class Connect extends StatefulWidget {

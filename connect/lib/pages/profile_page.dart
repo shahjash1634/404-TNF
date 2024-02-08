@@ -1,4 +1,6 @@
+import 'package:connect/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(ProfilePage());
@@ -63,10 +65,11 @@ class _ProfilePageState extends State<ProfilePage> {
           height: double.infinity,
           color: myColor,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.only(top: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                Provider.of(context).getProfileImage(),
                 CircleAvatar(
                   radius: 50,
                   backgroundImage: NetworkImage(userProfile.imageUrl),
