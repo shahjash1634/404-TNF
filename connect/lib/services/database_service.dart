@@ -1,6 +1,7 @@
+// ignore_for_file: avoid_print
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class DatabaseService {
   final String? uid;
@@ -100,13 +101,13 @@ class DatabaseService {
       String branch = docs['branch'] as String;
       String sem = docs['sem'] as String;
 
-       await branchCollection
+      await branchCollection
           .doc(branch.toUpperCase())
           .collection('Sem')
           .doc(sem.toString())
           .collection('students')
           .doc(docs.id)
-          .set(docs.data() as Map<String,dynamic>);
+          .set(docs.data() as Map<String, dynamic>);
     }
   }
 
@@ -214,5 +215,123 @@ class DatabaseService {
     var data = snapshot.data() as Map<String, dynamic>;
     var branch = data['branch'] as String;
     return branch;
+  }
+
+  Future<String?> getSemesterForSubject(
+      String branch, String subjectName) async {
+    try {
+      QuerySnapshot semSnapshot = await FirebaseFirestore.instance
+          .collection("Branch")
+          .doc(branch.toUpperCase())
+          .collection("Sem")
+          .get();
+
+      for (QueryDocumentSnapshot semDoc in semSnapshot.docs) {
+        QuerySnapshot subjectSnapshot = await semDoc.reference
+            .collection("Subjects")
+            .where(FieldPath.documentId, isEqualTo: subjectName)
+            .get();
+
+        if (subjectSnapshot.docs.isNotEmpty) {
+          return semDoc.id;
+        }
+      }
+
+      // Subject not found
+      print("Subject not found: $subjectName");
+      return null;
+    } catch (e) {
+      print("Error fetching semester: $e");
+      return null;
+    }
+  }
+
+  //Attendance
+  Future<List<String>> fetchStudentsForClass(
+    String branch,
+    String semester,
+  ) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Branch')
+          .doc(branch.toUpperCase())
+          .collection('Sem')
+          .doc(semester)
+          .collection('students')
+          .get();
+
+      List<String> students = snapshot.docs.map((doc) => doc.id).toList();
+      return students;
+    } catch (e) {
+      print('Error fetching students: $e');
+      return [];
+    }
+  }
+
+  Future<void> saveAttendance(
+    String branch,
+    String semester,
+    String subject,
+    String date,
+    Map<String, bool> attendanceData,
+  ) async {
+    try {
+      final CollectionReference attendanceCollection =
+          FirebaseFirestore.instance.collection('Attendance');
+
+      final Map<String, dynamic> attendanceMap = {
+        'branch': branch.toUpperCase(),
+        'semester': semester,
+        'subject': subject,
+        'date': date,
+        'attendanceData': attendanceData,
+      };
+
+      await attendanceCollection.doc().set(attendanceMap);
+    } catch (e) {
+      print('Error saving attendance: $e');
+    }
+  }
+
+  Future<List<String>> fetchStudentsNamesForClass(
+      String branch, String semester) async {
+    List<String> studentIds = await fetchStudentsForClass(branch, semester);
+    List<String> studentNames = [];
+    for (var id in studentIds) {
+      DocumentSnapshot snapshot = await studentCollection.doc(id).get();
+      String name = snapshot.get('name');
+      studentNames.add(name);
+    }
+    return studentNames;
+  }
+
+Future<double> fetchAttendancePercentage(String branch, String semester, String subject) async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> attendanceSnapshot = await FirebaseFirestore.instance
+          .collection('attendance')
+          .doc(branch)
+          .collection(semester)
+          .doc(subject)
+          .get();
+
+      if (attendanceSnapshot.exists) {
+        Map<String, bool>? attendanceData =
+            attendanceSnapshot.data()?['attendanceData'];
+        if (attendanceData != null && attendanceData.isNotEmpty) {
+          int presentCount =
+              attendanceData.values.where((value) => value).length;
+          double totalStudents = attendanceData.length as double;
+          double attendancePercentage = (presentCount / totalStudents) * 100;
+          return attendancePercentage;
+        } else {
+          return 0.0;
+        }
+      } else {
+        return 0.0;
+      }
+    } catch (error) {
+      print('Error fetching attendance percentage: $error');
+      return 0.0;
+    }
   }
 }

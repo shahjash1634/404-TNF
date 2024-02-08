@@ -16,7 +16,34 @@ class TeacherHomePage extends StatefulWidget {
 
 class _TeacherHomePageState extends State<TeacherHomePage> {
   AuthService authService = AuthService();
-  DatabaseService _databaseService = DatabaseService();
+  final DatabaseService _databaseService = DatabaseService();
+  late Future<List<String>> _teacherClassesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _teacherClassesFuture = _databaseService.getTeacherClasses();
+    _fetchCurrentSemester();
+  }
+
+  Future<String?> _fetchCurrentSemester() async {
+    try {
+      List<String> teacherClasses = await _teacherClassesFuture;
+      if (teacherClasses.isNotEmpty) {
+        String branch = await _databaseService.getTeacherBranch();
+        String className = teacherClasses.first;
+        String? semester =
+            await _databaseService.getSemesterForSubject(branch, className);
+        return semester;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Error fetching current semester: $e");
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -74,16 +101,39 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
               child: Text("Error : "),
             );
           } else {
-            String branch = snapshot.data ?? "";
-            return Card(
-              //color: Color.fromARGB(255, 21, 2, 50).withOpacity(0.5),
-              margin: EdgeInsets.all(16),
-              child: ListTile(
-                title: Text(className),
-                subtitle: Text(branch.toUpperCase()),
-                onTap: () {},
-              ),
-            );
+            return FutureBuilder(
+                future: _fetchCurrentSemester(),
+                builder: (context, semesterSnapshot) {
+                  if (semesterSnapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (semesterSnapshot.hasError) {
+                    return Center(
+                      child: Text("Error : ${semesterSnapshot.error}"),
+                    );
+                  } else {
+                    String branch = snapshot.data ?? "";
+                    String semester = semesterSnapshot.data ?? "";
+                    return Card(
+                        margin: EdgeInsets.all(16),
+                        child: ListTile(
+                          title: Text(className),
+                          subtitle: Text(
+                              branch.toUpperCase() + " " + 'Sem: $semester'),
+                          onTap: () {
+                            nextScreenReplace(
+                                context,
+                                FunctionsPage(
+                                  branch: branch,
+                                  subject: className,
+                                  semester: semester,
+                                ));
+                          },
+                        ));
+                  }
+                });
           }
         });
   }

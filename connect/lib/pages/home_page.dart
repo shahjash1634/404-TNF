@@ -20,12 +20,17 @@ class _HomePageState extends State<HomePage> {
   AuthService authService = AuthService();
   Color myColor = const Color(0xFF2f3b61);
   late Stream<QuerySnapshot> _stream;
+  late String branch;
+   late String sem;
 
   void initState() {
     super.initState();
     databaseService = DatabaseService();
     _stream = databaseService.gettingSubject(widget.email);
+     branch = databaseService.gettingBranch(widget.email);
+     sem =databaseService.gettingSem(widget.email); 
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +97,7 @@ class _HomePageState extends State<HomePage> {
                                 const BoxDecoration(color: Colors.deepOrange),
                             child: TextButton(
                               onPressed: () {
-                                nextScreen(context, SubjectPage());
+                                nextScreen(context, SubjectPage(branch:branch,subjectName: documentId,semester:sem ,));
                               },
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
