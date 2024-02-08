@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect/pages/subject_page.dart';
 import 'package:connect/services/auth_service.dart';
 import 'package:connect/widgets/drawer.dart';
+import 'package:connect/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/services/database_service.dart';
+
 
 class HomePage extends StatefulWidget {
   final String email;
@@ -85,9 +88,12 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                           footer: Container(
-                            decoration: const BoxDecoration(color: Colors.deepOrange),
+                            decoration:
+                                const BoxDecoration(color: Colors.deepOrange),
                             child: TextButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                nextScreen(context, SubjectPage());
+                              },
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [

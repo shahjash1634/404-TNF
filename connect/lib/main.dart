@@ -73,7 +73,7 @@ class _ConnectState extends State<Connect> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // You can return a loading indicator if needed
-                  return CircularProgressIndicator();
+                  return const CircularProgressIndicator();
                 } else if (snapshot.hasError) {
                   // Handle the error
                   return Text("Error: ${snapshot.error}");
@@ -84,8 +84,8 @@ class _ConnectState extends State<Connect> {
               },
             )
           : _isTeacherSignedIn
-              ? TeacherHomePage()
-              : LoginPage(),
+              ? const TeacherHomePage()
+              : const LoginPage(),
     );
   }
 }
