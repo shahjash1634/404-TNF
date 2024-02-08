@@ -20,9 +20,9 @@ class _LoginPageState extends State<LoginPage> {
   String password = "";
   final formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-
+  DatabaseService databaseService = DatabaseService();
   AuthService authService = AuthService();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,9 +216,13 @@ class _LoginPageState extends State<LoginPage> {
                 await HelperFunction.saveUserLoggedInStatus(true);
                 await HelperFunction.saveUserEmailSF(email);
                 //await HelperFunction.saveUserNameSF(snapshot.docs[0]['Name']);
-                
+                await databaseService.storingStudentData();
                 // ignore: use_build_context_synchronously
-                nextScreenReplace(context, HomePage(email: email,));
+                nextScreenReplace(
+                    context,
+                    HomePage(
+                      email: email,
+                    ));
               } else {
                 showSnackbar(context, Colors.red, value);
                 setState(() {
@@ -236,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
                 await HelperFunction.saveTeacherLoggedInStatus(true);
                 await HelperFunction.saveTeacherEmailSF(email);
                 nextScreenReplace(context, TeacherHomePage());
-              }else {
+              } else {
                 showSnackbar(context, Colors.red, value);
                 setState(() {
                   _isLoading = false;

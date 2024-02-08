@@ -18,43 +18,27 @@ class _SubjectPageState extends State<SubjectPage> {
         title: const Text('Subject Page'),
         titleTextStyle: const TextStyle(color: Colors.white, fontSize: 23),
         backgroundColor: const Color.fromARGB(230, 11, 15, 92),
+        centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF132248), Color.fromARGB(230, 11, 15, 92)],
-            ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF132248), Color.fromARGB(230, 11, 15, 92)],
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(
-                height: 50,
-              ),
-              const Text(
-                "ATTENDANCE :",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-              LinearPercentIndicator(
-                animation: true,
-                animationDuration: 1000,
-                lineHeight: 10,
-                percent: 0.4,
-                progressColor: Colors.deepPurple,
-              ),
-              const SizedBox(
-                height: 50,
-              ),
-              Column(
-                children: [
-                  const Text(
-                    "ANNOUNCEMENTS :",
+        ),
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 30,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  height: 50,
+                  padding: EdgeInsets.only(left: 10),
+                  child: const Text(
+                    "ATTENDANCE :",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -62,34 +46,27 @@ class _SubjectPageState extends State<SubjectPage> {
                       letterSpacing: 2,
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  // Check if there are announcements
-                  announcements.isEmpty
-                      ? const Text(
-                          "No Announcements",
-                          style: TextStyle(color: Colors.white),
-                        )
-                      : Container(
-                          height: announcements.length * 40.0,
-                          child: ListView.builder(
-                            itemCount: announcements.length,
-                            itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(
-                                  announcements[index],
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                  const SizedBox(
-                    height: 50,
+                ),
+                Container(
+                  padding: EdgeInsets.only(left: 130, bottom: 20),
+                  child: Text(
+                    "Attendence percentage",
+                    style: TextStyle(color: Colors.white, fontSize: 30),
                   ),
-                ],
-              )
-            ],
-          ),
+                )
+              ],
+            ),
+            LinearPercentIndicator(
+              animation: true,
+              animationDuration: 1000,
+              lineHeight: 10,
+              percent: 0.4,
+              progressColor: Colors.deepPurple,
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+          ],
         ),
       ),
     );
