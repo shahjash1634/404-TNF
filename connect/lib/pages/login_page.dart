@@ -3,6 +3,7 @@ import 'package:connect/helper/helper_functions.dart';
 import 'package:connect/pages/home_page.dart';
 import 'package:connect/services/auth_service.dart';
 import 'package:connect/services/database_service.dart';
+import 'package:connect/teacher/teacher_home_page.dart';
 import 'package:connect/widgets/widgets.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class _LoginPageState extends State<LoginPage> {
   String password = "";
   final formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  DatabaseService databaseService = DatabaseService();
   AuthService authService = AuthService();
 
   @override
@@ -202,27 +204,49 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _isLoading = true;
       });
-      await authService
-          .logInWithEmailAndPassword(email, password)
-          .then((value) async {
-        if (value == true) {
-          QuerySnapshot snapshot =
-              await DatabaseService(uid: FirebaseAuth.instance.currentUser!.uid)
-                  .gettingUserData(email);
-          //saving value to our sf
-          await HelperFunction.saveUserLoggedInStatus(true);
-          await HelperFunction.saveUserEmailSF(email);
-          //await HelperFunction.saveUserNameSF(snapshot.docs[0]['Name']);
-
-          // ignore: use_build_context_synchronously
-          nextScreenReplace(context, HomePage());
-        } else {
-          showSnackbar(context, Colors.red, value);
-          setState(() {
-            _isLoading = false;
-          });
-        }
-      });
+      var roll = email.contains(RegExp(r'[0-9]'))
+          ? await authService
+              .logInWithEmailAndPassword(email, password)
+              .then((value) async {
+              if (value == true) {
+                QuerySnapshot snapshot = await DatabaseService(
+                        uid: FirebaseAuth.instance.currentUser!.uid)
+                    .gettingUserData(email);
+                //saving value to our sf
+                await HelperFunction.saveUserLoggedInStatus(true);
+                await HelperFunction.saveUserEmailSF(email);
+                //await HelperFunction.saveUserNameSF(snapshot.docs[0]['Name']);
+                await databaseService.storingStudentData();
+                // ignore: use_build_context_synchronously
+                nextScreenReplace(
+                    context,
+                    HomePage(
+                      email: email,
+                    ));
+              } else {
+                showSnackbar(context, Colors.red, value);
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+            })
+          : await authService
+              .logInTeacherWithEmailAndPassword(email, password)
+              .then((value) async {
+              if (value == true) {
+                QuerySnapshot snap = await DatabaseService(
+                        uid: FirebaseAuth.instance.currentUser!.uid)
+                    .gettingTeacherData(email);
+                await HelperFunction.saveTeacherLoggedInStatus(true);
+                await HelperFunction.saveTeacherEmailSF(email);
+                nextScreenReplace(context, TeacherHomePage());
+              } else {
+                showSnackbar(context, Colors.red, value);
+                setState(() {
+                  _isLoading = false;
+                });
+              }
+            });
     }
   }
 }

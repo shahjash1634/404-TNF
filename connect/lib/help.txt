@@ -1,0 +1,65 @@
+ [
+            const SizedBox(
+              height: 50,
+            ),
+            const Text(
+              "ATTENDANCE :",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
+              textAlign: TextAlign.start,
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            LinearPercentIndicator(
+              animation: true,
+              animationDuration: 1000,
+              lineHeight: 10,
+              percent: 0.4,
+              progressColor: Colors.deepPurple,
+            ),
+            const SizedBox(
+              height: 50,
+            ),
+            Column(
+              children: [
+                const Text(
+                  "ANNOUNCEMENTS :",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Check if there are announcements
+                announcements.isEmpty
+                    ? const Text(
+                        "No Announcements",
+                        style: TextStyle(color: Colors.white),
+                      )
+                    : Container(
+                        height: announcements.length * 40.0,
+                        child: ListView.builder(
+                          itemCount: announcements.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Text(
+                                announcements[index],
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                const SizedBox(
+                  height: 50,
+                ),
+              ],
+            )
+          ],

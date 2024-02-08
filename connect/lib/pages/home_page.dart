@@ -1,194 +1,117 @@
-import 'package:connect/pages/profile_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect/pages/subject_page.dart';
+import 'package:connect/services/auth_service.dart';
+import 'package:connect/widgets/drawer.dart';
+import 'package:connect/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:connect/services/database_service.dart';
 
-class MyApp extends StatelessWidget {
+
+class HomePage extends StatefulWidget {
+  final String email;
+
+  const HomePage({Key? key, required this.email}) : super(key: key);
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Drawer Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomePage(),
-    );
-  }
+  State<HomePage> createState() => _HomePageState();
 }
 
-class HomePage extends StatelessWidget {
-  Color myColor = Color(0xFF2f3b61);
+class _HomePageState extends State<HomePage> {
+  late DatabaseService databaseService;
+  AuthService authService = AuthService();
+  Color myColor = const Color(0xFF2f3b61);
+  late Stream<QuerySnapshot> _stream;
 
-  Future<void> _launchURL(String url) async {
-    /*final Uri url = Uri.parse('172.18.116.11');
-    if (!await launchUrl(url)) {
-      throw Exception(
-          'Could not launch ,please ensure college wifi connection');
-    }
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }*/
+  void initState() {
+    super.initState();
+    databaseService = DatabaseService();
+    _stream = databaseService.gettingSubject(widget.email);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Homepage'),
-      ),
-      drawer: Drawer(
-          child: SingleChildScrollView(
-        child: Container(
-          color: myColor,
-          child: Column(
-            children: [
-              DrawerHeader(
-                child: SizedBox(
-                  height: 200.0,
-                  width: 200.0,
-                  child: Image.asset(
-                    "assets/images/logo2.png",
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ),
-              ListTile(
-                title: Text('Profile', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  // Handle profile option
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
-                },
-              ),
-              ListTile(
-                title: Text('Announcements',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              Divider(),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 1', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 2', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 3', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 4', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 5', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 6', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 7', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Container(
-                color: myColor,
-                child: ListTile(
-                  title:
-                      Text('Subject 8', style: TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ),
-              Divider(),
-              ListTile(
-                title:
-                    Text('Course Reg.', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  _launchURL('https://epayments.vjti.ac.in/');
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Faculty feedback',
-                    style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  _launchURL('https://epayments.vjti.ac.in/');
-                  Navigator.pop(context);
-                },
-              ),
-              Divider(),
-              ListTile(
-                title: Text('Settings', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: Text('Logout', style: TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+        appBar: AppBar(
+          backgroundColor: const Color.fromARGB(255, 63, 21, 126),
+          title: const Text(
+            'Connect',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
           ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+                onPressed: () {},
+                icon: const Icon(Icons.calendar_month_rounded)),
+            IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+          ],
         ),
-      )),
-      body: Center(
-        child: Text('Welcome to the Homepage!'),
-      ),
-    );
+        backgroundColor: const Color.fromARGB(230, 11, 15, 92),
+        drawer: const MyDrawer(),
+        body: StreamBuilder<QuerySnapshot>(
+            stream: _stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text("Connection error");
+              } else if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              var docs = snapshot.data!.docs;
+              return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 9,
+                      mainAxisSpacing: 9),
+                  itemCount: docs.length,
+                  itemBuilder: (context, index) {
+                    String documentId = docs[index].id;
+                    String profName = docs[index]["professor"] as String;
+                    return Card(
+                      clipBehavior: Clip.antiAlias,
+                      color: const Color(0xFF7c7adf).withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
+                      child: GridTile(
+                          // ignore: sort_child_properties_last
+                          child: Text(
+                            documentId,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          header: Container(
+                            padding: const EdgeInsets.fromLTRB(0, 26, 16, 16),
+                            child: Text(
+                              profName,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          footer: Container(
+                            decoration:
+                                const BoxDecoration(color: Colors.deepOrange),
+                            child: TextButton(
+                              onPressed: () {
+                                nextScreen(context, SubjectPage());
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "More Info",
+                                    style: TextStyle(
+                                        fontSize: 16, color: Colors.white),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                  )
+                                ],
+                              ),
+                            ),
+                          )),
+                    );
+                  });
+            }));
   }
 }
