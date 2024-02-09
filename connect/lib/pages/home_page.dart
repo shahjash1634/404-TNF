@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect/pages/calendar_page.dart';
 import 'package:connect/pages/subject_page.dart';
 import 'package:connect/services/auth_service.dart';
 import 'package:connect/widgets/drawer.dart';
@@ -17,11 +18,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late DatabaseService databaseService;
   AuthService authService = AuthService();
-  Color myColor = const Color(0xFF2f3b61);
+  Color myColor = const Color(0xFF132248);
   late Stream<QuerySnapshot> _stream;
   late String branch;
   late String sem;
 
+  @override
   void initState() {
     super.initState();
     databaseService = DatabaseService();
@@ -34,33 +36,30 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            backgroundColor: Color(0xFF132248),
-            title: Align(
-              alignment: Alignment.center,
-              child: Container(
-                child: Image.asset(
-                  "assets/images/logo3.png",
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-
-            // centerTitle: true,
-            actions: [
-              IconButton(
-                  color: Colors.white,
-                  onPressed: () {},
-                  icon: const Icon(Icons.calendar_month_rounded)),
-              IconButton(
-                  color: Colors.white,
-                  onPressed: () {},
-                  icon: const Icon(Icons.settings))
-            ],
-            iconTheme: IconThemeData(color: Colors.white)),
-        backgroundColor: Color(0xFF132248),
-        drawer: MyDrawer(),
+          backgroundColor: myColor,
+          title: Align(
+            alignment: Alignment.center,
+            child: Image.asset("assets/images/logo3.png"),
+          ),
+          centerTitle: true,
+          actions: [
+            IconButton(
+                color: Colors.white,
+                onPressed: () {
+                  nextScreenReplace(context, CalendarPage());
+                },
+                icon: const Icon(Icons.calendar_month_rounded)),
+            IconButton(
+                color: Colors.white,
+                onPressed: () {},
+                icon: const Icon(Icons.settings))
+          ],
+          iconTheme: IconThemeData(color: Colors.white),
+        ),
+        backgroundColor: myColor,
+        drawer: const MyDrawer(),
         body: Padding(
-          padding: const EdgeInsets.only(top: 16.0, left: 8.0, right: 8.0),
+          padding: const EdgeInsets.only(top: 16, left: 8, right: 8),
           child: StreamBuilder<QuerySnapshot>(
               stream: _stream,
               builder: (context, snapshot) {
@@ -85,8 +84,8 @@ class _HomePageState extends State<HomePage> {
                       String profName = docs[index]["professor"] as String;
                       return Card(
                         clipBehavior: Clip.antiAlias,
-                        color:
-                            Color.fromARGB(255, 56, 73, 148).withOpacity(0.5),
+                        color: const Color.fromARGB(255, 56, 73, 148)
+                            .withOpacity(0.5),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
                         child: GridTile(
@@ -102,27 +101,25 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             header: Container(
-                              padding: const EdgeInsets.fromLTRB(0, 26, 16, 16),
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  profName,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
+                              padding: const EdgeInsets.fromLTRB(8, 26, 16, 16),
+                              child: Text(
+                                profName,
+                                style: const TextStyle(color: Colors.white),
                               ),
                             ),
                             footer: Container(
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 2, 16, 53),
-                              ),
+                              decoration: BoxDecoration(
+                                  color: Color.fromARGB(255, 34, 45, 103)),
                               child: TextButton(
                                 onPressed: () {
+                                  print(branch + sem + documentId);
                                   nextScreen(
                                       context,
                                       SubjectPage(
                                         branch: branch,
                                         subjectName: documentId,
                                         semester: sem,
+                                        email: widget.email,
                                       ));
                                 },
                                 child: const Row(

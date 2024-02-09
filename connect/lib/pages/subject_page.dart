@@ -1,18 +1,20 @@
 import 'package:connect/services/database_service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SubjectPage extends StatefulWidget {
   final String subjectName;
   final String branch;
   final String semester;
+  final String email;
 
   const SubjectPage(
       {super.key,
       required this.subjectName,
       required this.branch,
-      required this.semester});
+      required this.semester,
+      required this.email});
 
   @override
   State<SubjectPage> createState() => _SubjectPageState();
@@ -22,6 +24,26 @@ class _SubjectPageState extends State<SubjectPage> {
   List<String> announcements = []; // List to store announcements
   double attendancePercentage = 0.0;
   final DatabaseService _databaseService = DatabaseService();
+
+  @override
+  void initState() {
+    super.initState();
+    _updateAttendancePercentage();
+  }
+
+  Future<void> _updateAttendancePercentage() async {
+    try {
+      double percentage =
+          await _databaseService.calculateAttendancePercentageForStudent(
+              widget.email, widget.branch, widget.semester, widget.subjectName);
+      setState(() {
+        attendancePercentage = percentage;
+        print(attendancePercentage);
+      });
+    } catch (error) {
+      print('Error updating attendance percentage: $error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,17 +57,16 @@ class _SubjectPageState extends State<SubjectPage> {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Container(
+        //decoration: const BoxDecoration(
+        //gradient: LinearGradient(
+        //colors: [Color(0xFF132248), Color.fromARGB(230, 11, 15, 92)],
+        //),
         color: Color(0xFF132248),
-        // decoration: const BoxDecoration(
-        //   gradient: LinearGradient(
-        //     colors: [Color(0xFF132248),
-        //      Color.fromARGB(230, 11, 15, 92)],
-        //   ),
-        // ),
+
         child: Column(
           children: [
             const SizedBox(
-              height: 20,
+              height: 30,
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -64,39 +85,21 @@ class _SubjectPageState extends State<SubjectPage> {
                     ),
                   ),
                 ),
-                FutureBuilder<double>(
-                  future: _databaseService.fetchAttendancePercentage(
-                      widget.branch, widget.semester, widget.subjectName),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else {
-                      double attendancePercentage = snapshot.data ?? 0.0;
-                      return Container(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            attendancePercentage.toStringAsFixed(2) + '%',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                )
+                Container(
+                  padding: const EdgeInsets.only(left: 130, bottom: 20),
+                  child: Text(
+                    '${attendancePercentage.toStringAsFixed(2)}%',
+                    style: const TextStyle(color: Colors.white, fontSize: 30),
+                  ),
+                ),
               ],
             ),
             LinearPercentIndicator(
               animation: true,
               animationDuration: 1000,
               lineHeight: 10,
-              percent: 0.0,
-              progressColor: Color.fromARGB(255, 25, 57, 48),
+              percent: attendancePercentage / 100,
+              progressColor: Color.fromARGB(255, 63, 52, 146),
             ),
             const SizedBox(
               height: 50,
