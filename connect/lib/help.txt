@@ -1,0 +1,33 @@
+  Future<List<String>> fetchStudentsForClass(
+    String branch,
+    String semester,
+  ) async {
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('Branch')
+          .doc(branch.toUpperCase())
+          .collection('Sem')
+          .doc(semester)
+          .collection('students')
+          .get();
+
+      List<String> students = snapshot.docs
+          .map((doc) => (doc.data() as Map<String, dynamic>)['name'] as String)
+          .toList();
+      return students;
+    } catch (e) {
+      print('Error fetching students: $e');
+      return [];
+    }
+  }
+  Future<List<String>> fetchStudentsNamesForClass(
+      String branch, String semester) async {
+    List<String> studentIds = await fetchStudentsForClass(branch, semester);
+    List<String> studentNames = [];
+    for (var id in studentIds) {
+      DocumentSnapshot snapshot = await studentCollection.doc(id).get();
+      String name = snapshot.get('name');
+      studentNames.add(name);
+    }
+    return studentNames;
+  }

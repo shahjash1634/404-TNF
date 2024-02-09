@@ -51,10 +51,10 @@ class _ConnectState extends State<Connect> {
       }
     });
   }
+
   Future<String?> getUserEmail() async {
     return await HelperFunction.getUserEmailSF();
   }
-
 
   @override
   void initState() {

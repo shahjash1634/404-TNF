@@ -71,8 +71,14 @@ class DatabaseService {
     var branch = gettingBranch(email);
     var sem = gettingSem(email);
     var year = gettingYear(email);
+
+    var studentDoc = studentCollection.doc(uid);
+    var studentSnapshot = await studentDoc.get();
+    var studentData = studentSnapshot.data() as Map<String, dynamic>?;
+
+    String name = studentData?['name'] as String? ?? "-";
     return await studentCollection.doc(uid).set({
-      //"name": "-",
+      "name": name,
       "email": email,
       "sem": sem,
       "year": year,
@@ -85,11 +91,15 @@ class DatabaseService {
 
   Future updateTeacherData(String email, String password) async {
     var branch = gettingBranch(email);
+    var teacherDoc = teacherCollection.doc(uid);
+    var teacherData =
+        (await teacherDoc.get()).data() as Map<String, dynamic> ?? {};
+    List<dynamic> existingClasses = teacherData['classes'] ?? [];
     return await teacherCollection.doc(uid).set({
       //"name": "-",
       "email": email,
       "branch": branch,
-      "classes": [],
+      "classes": existingClasses,
       "uid": uid,
       "role": "teacher",
     });
@@ -180,27 +190,6 @@ class DatabaseService {
     return studentEmails;
   }
 
-  Future<List<String>> getStudentNamesForClass(
-      List<String> studentEmails) async {
-    String email;
-    List<String> studentNames = [];
-    for (String e in studentEmails) {
-      email = e;
-
-      var branch = gettingBranch(email);
-      var sem = gettingSem(email);
-      QuerySnapshot querySnapshot = await studentCollection
-          .where('branch', isEqualTo: branch)
-          .where("sem", isEqualTo: sem)
-          .get();
-
-      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        studentNames.add(doc['name']);
-      }
-    }
-    return studentNames;
-  }
-
   Future<List<String>> getTeacherClasses() async {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     DocumentSnapshot snapshot = await teacherCollection.doc(uid).get();
@@ -246,11 +235,8 @@ class DatabaseService {
     }
   }
 
-  //Attendance
-  Future<List<String>> fetchStudentsForClass(
-    String branch,
-    String semester,
-  ) async {
+  Future<List<String>> fetchStudentsForBranchAndSem(
+      String branch, String semester) async {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('Branch')
@@ -260,8 +246,9 @@ class DatabaseService {
           .collection('students')
           .get();
 
-      List<String> students = snapshot.docs.map((doc) => doc.id).toList();
-      return students;
+      List<String> studentNames =
+          snapshot.docs.map((doc) => doc['name'] as String).toList();
+      return studentNames;
     } catch (e) {
       print('Error fetching students: $e');
       return [];
@@ -293,26 +280,16 @@ class DatabaseService {
     }
   }
 
-  Future<List<String>> fetchStudentsNamesForClass(
-      String branch, String semester) async {
-    List<String> studentIds = await fetchStudentsForClass(branch, semester);
-    List<String> studentNames = [];
-    for (var id in studentIds) {
-      DocumentSnapshot snapshot = await studentCollection.doc(id).get();
-      String name = snapshot.get('name');
-      studentNames.add(name);
-    }
-    return studentNames;
-  }
-
-Future<double> fetchAttendancePercentage(String branch, String semester, String subject) async {
+  Future<double> fetchAttendancePercentage(
+      String branch, String semester, String subject) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> attendanceSnapshot = await FirebaseFirestore.instance
-          .collection('attendance')
-          .doc(branch)
-          .collection(semester)
-          .doc(subject)
-          .get();
+      DocumentSnapshot<Map<String, dynamic>> attendanceSnapshot =
+          await FirebaseFirestore.instance
+              .collection('attendance')
+              .doc(branch)
+              .collection(semester)
+              .doc(subject)
+              .get();
 
       if (attendanceSnapshot.exists) {
         Map<String, bool>? attendanceData =
