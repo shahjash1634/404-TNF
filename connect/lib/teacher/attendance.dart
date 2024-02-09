@@ -44,7 +44,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Future<void> saveAttendance() async {
     String date = DateTime.now().toString();
-    await databaseService.saveAttendance(widget.branch, widget.semester, widget.subject, date, attendance);
+    await databaseService.saveAttendance(
+        widget.branch, widget.semester, widget.subject, date, attendance);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Attendance saved successfully!'),
@@ -56,8 +57,10 @@ class _AttendancePageState extends State<AttendancePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(156, 32, 3, 71),
+        backgroundColor: Color(0xFF132248),
         title: const Text("Attendance Page"),
+        titleTextStyle: TextStyle(
+            color: Colors.white, fontSize: 27, fontWeight: FontWeight.w700),
         centerTitle: true,
         leading: InkWell(
           onTap: () {
@@ -69,10 +72,10 @@ class _AttendancePageState extends State<AttendancePage> {
                   semester: widget.semester,
                 ));
           },
-          child: const Icon(Icons.arrow_back_ios_new),
+          child: const Icon(color: Colors.white,Icons.arrow_back_ios_new),
         ),
       ),
-      body: students == null
+      body: students == false
           ? Center(
               child: CircularProgressIndicator(),
             )

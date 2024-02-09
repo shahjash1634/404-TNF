@@ -49,19 +49,26 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
+        backgroundColor: Color(0xFF132248),
         appBar: AppBar(
-          backgroundColor: const Color.fromARGB(255, 63, 21, 126),
+          backgroundColor: Color(0xFF132248),
           title: const Text(
             'Connect',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, fontSize: 28, color: Colors.white),
           ),
           centerTitle: true,
           actions: [
             IconButton(
+                color: Colors.white,
                 onPressed: () {},
                 icon: const Icon(Icons.calendar_month_rounded)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+            IconButton(
+                color: Colors.white,
+                onPressed: () {},
+                icon: const Icon(Icons.settings))
           ],
+          iconTheme: IconThemeData(color: Colors.white),
         ),
         drawer: const MyDrawer(),
         body: FutureBuilder(
@@ -118,9 +125,20 @@ class _TeacherHomePageState extends State<TeacherHomePage> {
                     String semester = semesterSnapshot.data ?? "";
                     return Card(
                         margin: EdgeInsets.all(16),
+                        color:
+                            Color.fromARGB(255, 56, 73, 148).withOpacity(0.5),
                         child: ListTile(
-                          title: Text(className),
+                          title: Text(
+                            className,
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 19),
+                          ),
                           subtitle: Text(
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500),
                               branch.toUpperCase() + " " + 'Sem: $semester'),
                           onTap: () {
                             nextScreenReplace(
