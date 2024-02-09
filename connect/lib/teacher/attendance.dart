@@ -34,7 +34,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
   void fetchStudents() async {
     List<String> fetchedStudents = await databaseService
-        .fetchStudentsNamesForClass(widget.branch, widget.semester);
+        .fetchStudentsForBranchAndSem(widget.branch, widget.semester);
 
     setState(() {
       students = fetchedStudents;
@@ -44,7 +44,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Future<void> saveAttendance() async {
     String date = DateTime.now().toString();
-    await databaseService.saveAttendance(widget.branch, widget.semester, widget.subject, date, attendance);
+    await databaseService.saveAttendance(
+        widget.branch, widget.semester, widget.subject, date, attendance);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Attendance saved successfully!'),
