@@ -101,7 +101,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             ),
                             header: Container(
-                              padding: const EdgeInsets.fromLTRB(8, 26, 16, 16),
+                              padding: const EdgeInsets.fromLTRB(8, 35, 16, 16),
                               child: Text(
                                 profName,
                                 style: const TextStyle(color: Colors.white),
