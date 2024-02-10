@@ -1,6 +1,7 @@
 import 'package:connect/services/database_service.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SubjectPage extends StatefulWidget {
   final String subjectName;
@@ -49,16 +50,19 @@ class _SubjectPageState extends State<SubjectPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.subjectName),
-        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 23),
-        backgroundColor: const Color.fromARGB(230, 11, 15, 92),
+        titleTextStyle: const TextStyle(
+            color: Colors.white, fontSize: 27, fontWeight: FontWeight.w700),
+        backgroundColor: Color(0xFF132248),
         centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
       ),
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFF132248), Color.fromARGB(230, 11, 15, 92)],
-          ),
-        ),
+        //decoration: const BoxDecoration(
+        //gradient: LinearGradient(
+        //colors: [Color(0xFF132248), Color.fromARGB(230, 11, 15, 92)],
+        //),
+        color: Color(0xFF132248),
+
         child: Column(
           children: [
             const SizedBox(
@@ -70,13 +74,14 @@ class _SubjectPageState extends State<SubjectPage> {
                 Container(
                   height: 50,
                   padding: EdgeInsets.only(left: 10),
-                  child: const Text(
+                  child: Text(
                     "ATTENDANCE :",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 2,
+                    style: GoogleFonts.openSans(
+                      textStyle: TextStyle(
+                        color: Colors.white,
+                        fontSize: 23,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
@@ -94,7 +99,7 @@ class _SubjectPageState extends State<SubjectPage> {
               animationDuration: 1000,
               lineHeight: 10,
               percent: attendancePercentage / 100,
-              progressColor: Colors.deepPurple,
+              progressColor: Color.fromARGB(255, 63, 52, 146),
             ),
             const SizedBox(
               height: 50,

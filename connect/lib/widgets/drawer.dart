@@ -19,18 +19,16 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        color: const Color(0xFF2f3b61),
+        color: Color(0xFF132248),
         child: SingleChildScrollView(
           child: Column(
             children: [
               DrawerHeader(
                 child: SizedBox(
-                  height: 300.0, // Adjust the height as needed
-                  width: 500.0, // Adjust the width as needed
+                  height: 100.0,
+                  width: 400.0,
                   child: Image.asset(
                     "assets/images/logo2.png",
-                    height: 300.0, // Should match the SizedBox height
-                    width: 500.0, // Should match the SizedBox width
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -92,13 +90,11 @@ class _MyDrawerState extends State<MyDrawer> {
                       return AlertDialog(
                         title: const Text(
                           "Logout",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
                         ),
                         content: const Text("Are you sure you want to logout?"),
                         actions: [
                           IconButton(
+                            color: Colors.white,
                             onPressed: () {
                               Navigator.pop(context);
                             },
