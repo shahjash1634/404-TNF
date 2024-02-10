@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect/pages/calendar_page.dart';
 import 'package:connect/pages/subject_page.dart';
 import 'package:connect/services/auth_service.dart';
 import 'package:connect/widgets/drawer.dart';
 import 'package:connect/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:connect/services/database_service.dart';
-
 
 class HomePage extends StatefulWidget {
   final String email;
@@ -21,16 +21,16 @@ class _HomePageState extends State<HomePage> {
   Color myColor = const Color(0xFF2f3b61);
   late Stream<QuerySnapshot> _stream;
   late String branch;
-   late String sem;
+  late String sem;
 
+  @override
   void initState() {
     super.initState();
     databaseService = DatabaseService();
     _stream = databaseService.gettingSubject(widget.email);
-     branch = databaseService.gettingBranch(widget.email);
-     sem =databaseService.gettingSem(widget.email); 
+    branch = databaseService.gettingBranch(widget.email);
+    sem = databaseService.gettingSem(widget.email);
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,9 @@ class _HomePageState extends State<HomePage> {
           centerTitle: true,
           actions: [
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  nextScreenReplace(context, CalendarPage());
+                },
                 icon: const Icon(Icons.calendar_month_rounded)),
             IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
           ],
@@ -97,7 +99,15 @@ class _HomePageState extends State<HomePage> {
                                 const BoxDecoration(color: Colors.deepOrange),
                             child: TextButton(
                               onPressed: () {
-                                nextScreen(context, SubjectPage(branch:branch,subjectName: documentId,semester:sem ,));
+                                print(branch + sem + documentId);
+                                nextScreen(
+                                    context,
+                                    SubjectPage(
+                                      branch: branch,
+                                      subjectName: documentId,
+                                      semester: sem,
+                                      email: widget.email,
+                                    ));
                               },
                               child: const Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
