@@ -6,8 +6,14 @@ class SubjectPage extends StatefulWidget {
   final String subjectName;
   final String branch;
   final String semester;
+  final String email;
 
-  const SubjectPage({super.key, required this.subjectName, required this.branch, required this.semester});
+  const SubjectPage(
+      {super.key,
+      required this.subjectName,
+      required this.branch,
+      required this.semester,
+      required this.email});
 
   @override
   State<SubjectPage> createState() => _SubjectPageState();
@@ -19,10 +25,30 @@ class _SubjectPageState extends State<SubjectPage> {
   final DatabaseService _databaseService = DatabaseService();
 
   @override
+  void initState() {
+    super.initState();
+    _updateAttendancePercentage();
+  }
+
+  Future<void> _updateAttendancePercentage() async {
+    try {
+      double percentage =
+          await _databaseService.calculateAttendancePercentageForStudent(
+              widget.email, widget.branch, widget.semester, widget.subjectName);
+      setState(() {
+        attendancePercentage = percentage;
+        print(attendancePercentage);
+      });
+    } catch (error) {
+      print('Error updating attendance percentage: $error');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Subject Page'),
+        title: Text(widget.subjectName),
         titleTextStyle: const TextStyle(color: Colors.white, fontSize: 23),
         backgroundColor: const Color.fromARGB(230, 11, 15, 92),
         centerTitle: true,
@@ -54,32 +80,20 @@ class _SubjectPageState extends State<SubjectPage> {
                     ),
                   ),
                 ),
-                 FutureBuilder<double>(
-                  future: _databaseService.fetchAttendancePercentage(widget.branch,widget.semester,widget.subjectName),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else {
-                      double attendancePercentage = snapshot.data ?? 0.0;
-                      return Container(
-                        padding: EdgeInsets.only(left: 130, bottom: 20),
-                        child: Text(
-                          attendancePercentage.toStringAsFixed(2) + '%',
-                          style: const TextStyle(color: Colors.white, fontSize: 30),
-                        ),
-                      );
-                    }
-                  },
-                )
+                Container(
+                  padding: const EdgeInsets.only(left: 130, bottom: 20),
+                  child: Text(
+                    '${attendancePercentage.toStringAsFixed(2)}%',
+                    style: const TextStyle(color: Colors.white, fontSize: 30),
+                  ),
+                ),
               ],
             ),
             LinearPercentIndicator(
               animation: true,
               animationDuration: 1000,
               lineHeight: 10,
-              percent: 0.0,
+              percent: attendancePercentage / 100,
               progressColor: Colors.deepPurple,
             ),
             const SizedBox(

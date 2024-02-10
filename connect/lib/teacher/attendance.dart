@@ -44,13 +44,37 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Future<void> saveAttendance() async {
     String date = DateTime.now().toString();
-    await databaseService.saveAttendance(
-        widget.branch, widget.semester, widget.subject, date, attendance);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Attendance saved successfully!'),
-      ),
-    );
+    try {
+        // Save attendance for each student
+    await Future.forEach(attendance.entries, (entry) async {
+      String studentId = entry.key;
+      bool isPresent = entry.value;
+      
+      await databaseService.saveAttendanceForStudent(
+        widget.branch,
+        widget.semester,
+        widget.subject,
+        studentId,
+        date,
+        isPresent,
+      );
+    });
+
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Attendance saved successfully!'),
+        ),
+      );
+    } catch (e) {
+      // Handle any errors that occur during the process
+      print('Error saving attendance: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error saving attendance. Please try again.'),
+        ),
+      );
+    }
   }
 
   @override
@@ -90,10 +114,8 @@ class _AttendancePageState extends State<AttendancePage> {
                     });
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: saveAttendance,
-        child: Icon(Icons.save),
-      ),
+      floatingActionButton: ElevatedButton(
+          onPressed: saveAttendance, child: Text("Save Attendance")),
     );
   }
 }
