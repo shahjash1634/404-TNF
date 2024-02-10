@@ -108,6 +108,7 @@ class _AttendancePageState extends State<AttendancePage> {
               itemCount: students.length,
               itemBuilder: (context, index) {
                 return CheckboxListTile(
+                    side: const BorderSide(color: Colors.white),
                     title: Text(
                       students[index],
                       style: TextStyle(color: Colors.white),
