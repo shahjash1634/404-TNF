@@ -33,7 +33,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(230, 11, 15, 92),
+        backgroundColor: Color(0xFF132248),
         centerTitle: true,
         title: Text("Calendar", style: TextStyle(color: Colors.white)),
       ),
@@ -43,24 +43,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
             context: context,
             builder: (context) {
               return AlertDialog(
+                backgroundColor: Color(0xFF132248),
                 scrollable: true,
-                title: Text("Event Name"),
+                title:
+                    Text("Event Name", style: TextStyle(color: Colors.white)),
                 content: Padding(
                   padding: EdgeInsets.all(8),
                   child: TextField(
                     controller: _eventController,
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
                 actions: [
-                  ElevatedButton(
-                    onPressed: () {
-                      events.addAll({
-                        _selectedDay!: [Event(_eventController.text)]
-                      });
-                      Navigator.of(context).pop();
-                      _selectedEvents.value = _getEventsForDay(_selectedDay!);
-                    },
-                    child: Text("Save"),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(255, 32, 57, 122)
+                          .withOpacity(0.7), // Set the desired color
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        events.addAll({
+                          _selectedDay!: [Event(_eventController.text)]
+                        });
+                        Navigator.of(context).pop();
+                        _selectedEvents.value = _getEventsForDay(_selectedDay!);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.transparent, // Set transparent color
+                        elevation: 0, // No shadow
+                      ),
+                      child:
+                          Text("Save", style: TextStyle(color: Colors.white)),
+                    ),
                   ),
                 ],
               );
@@ -69,6 +84,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         },
         child: Icon(Icons.add),
       ),
+      backgroundColor: Color(0xFF132248),
       body: Column(
         children: [
           TableCalendar(
@@ -82,41 +98,43 @@ class _CalendarScreenState extends State<CalendarScreen> {
             daysOfWeekHeight: 60,
             headerStyle: HeaderStyle(
               formatButtonTextStyle: TextStyle(
-                color: Color.fromARGB(230, 11, 15, 92),
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
               ),
               formatButtonDecoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                      color: Color.fromARGB(230, 11, 15, 92), width: 2)),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white, width: 2),
+              ),
               leftChevronIcon: Icon(
                 Icons.arrow_back_ios_rounded,
-                color: Color.fromARGB(230, 11, 15, 92),
+                color: Colors.white,
                 size: 24,
               ),
               rightChevronIcon: Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: Color.fromARGB(230, 11, 15, 92),
+                color: Colors.white,
                 size: 24,
               ),
               titleTextStyle: TextStyle(
-                color: Color.fromARGB(230, 11, 15, 92),
+                color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
               ),
             ),
             daysOfWeekStyle: DaysOfWeekStyle(
-                weekendStyle: TextStyle(
-              color: Colors.red,
-            )),
+              weekendStyle: TextStyle(
+                color: Colors.white,
+              ),
+            ),
             calendarStyle: CalendarStyle(
               weekendTextStyle: TextStyle(
-                color: Colors.red,
+                color: Colors.white,
               ),
               todayDecoration: BoxDecoration(
-                  color: Color.fromARGB(230, 11, 15, 92),
-                  shape: BoxShape.circle),
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
             ),
             onDaySelected: (selectedDay, focusedDay) {
               if (!isSameDay(_selectedDay, selectedDay)) {
@@ -146,15 +164,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   itemCount: value.length,
                   itemBuilder: (context, index) {
                     return Container(
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       decoration: BoxDecoration(
                         border: Border.all(),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ListTile(
                         onTap: () => print(""),
-                        title: Text('${value[index]}'),
+                        title: Text('${value[index]}',
+                            style: TextStyle(color: Colors.white)),
                       ),
                     );
                   },
