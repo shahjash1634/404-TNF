@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class DatabaseService {
   final String? uid;
@@ -71,8 +72,14 @@ class DatabaseService {
     var branch = gettingBranch(email);
     var sem = gettingSem(email);
     var year = gettingYear(email);
+
+    var studentDoc = studentCollection.doc(uid);
+    var studentSnapshot = await studentDoc.get();
+    var studentData = studentSnapshot.data() as Map<String, dynamic>?;
+
+    String name = studentData?['name'] as String? ?? "-";
     return await studentCollection.doc(uid).set({
-      //"name": "-",
+      "name": name,
       "email": email,
       "sem": sem,
       "year": year,
@@ -85,11 +92,15 @@ class DatabaseService {
 
   Future updateTeacherData(String email, String password) async {
     var branch = gettingBranch(email);
+    var teacherDoc = teacherCollection.doc(uid);
+    var teacherData =
+        (await teacherDoc.get()).data() as Map<String, dynamic> ?? {};
+    List<dynamic> existingClasses = teacherData['classes'] ?? [];
     return await teacherCollection.doc(uid).set({
       //"name": "-",
       "email": email,
       "branch": branch,
-      "classes": [],
+      "classes": existingClasses,
       "uid": uid,
       "role": "teacher",
     });
@@ -180,27 +191,6 @@ class DatabaseService {
     return studentEmails;
   }
 
-  Future<List<String>> getStudentNamesForClass(
-      List<String> studentEmails) async {
-    String email;
-    List<String> studentNames = [];
-    for (String e in studentEmails) {
-      email = e;
-
-      var branch = gettingBranch(email);
-      var sem = gettingSem(email);
-      QuerySnapshot querySnapshot = await studentCollection
-          .where('branch', isEqualTo: branch)
-          .where("sem", isEqualTo: sem)
-          .get();
-
-      for (QueryDocumentSnapshot doc in querySnapshot.docs) {
-        studentNames.add(doc['name']);
-      }
-    }
-    return studentNames;
-  }
-
   Future<List<String>> getTeacherClasses() async {
     String? uid = FirebaseAuth.instance.currentUser?.uid;
     DocumentSnapshot snapshot = await teacherCollection.doc(uid).get();
@@ -246,11 +236,8 @@ class DatabaseService {
     }
   }
 
-  //Attendance
-  Future<List<String>> fetchStudentsForClass(
-    String branch,
-    String semester,
-  ) async {
+  Future<List<String>> fetchStudentsForBranchAndSem(
+      String branch, String semester) async {
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('Branch')
@@ -260,78 +247,127 @@ class DatabaseService {
           .collection('students')
           .get();
 
-      List<String> students = snapshot.docs.map((doc) => doc.id).toList();
-      return students;
+      List<String> studentNames =
+          snapshot.docs.map((doc) => doc['name'] as String).toList();
+      return studentNames;
     } catch (e) {
       print('Error fetching students: $e');
       return [];
     }
   }
 
-  Future<void> saveAttendance(
+  Future<void> saveAttendanceForStudent(
     String branch,
     String semester,
     String subject,
+    String studentId,
     String date,
-    Map<String, bool> attendanceData,
+    bool isPresent,
   ) async {
     try {
-      final CollectionReference attendanceCollection =
-          FirebaseFirestore.instance.collection('Attendance');
+      final CollectionReference attendanceCollection = FirebaseFirestore
+          .instance
+          .collection('Branch')
+          .doc(branch.toUpperCase())
+          .collection('Sem')
+          .doc(semester)
+          .collection('Subjects')
+          .doc(subject)
+          .collection('Attendance');
 
       final Map<String, dynamic> attendanceMap = {
-        'branch': branch.toUpperCase(),
-        'semester': semester,
-        'subject': subject,
         'date': date,
-        'attendanceData': attendanceData,
+        'isPresent': isPresent,
       };
+      print(attendanceMap);
+      print(isPresent);
 
-      await attendanceCollection.doc().set(attendanceMap);
+      await attendanceCollection.doc(studentId).set(attendanceMap);
     } catch (e) {
-      print('Error saving attendance: $e');
+      print('Error saving attendance for student: $e');
     }
   }
 
-  Future<List<String>> fetchStudentsNamesForClass(
-      String branch, String semester) async {
-    List<String> studentIds = await fetchStudentsForClass(branch, semester);
-    List<String> studentNames = [];
-    for (var id in studentIds) {
-      DocumentSnapshot snapshot = await studentCollection.doc(id).get();
-      String name = snapshot.get('name');
-      studentNames.add(name);
-    }
-    return studentNames;
-  }
+Future<Map<String, bool>> fetchAttendanceDataForStudent(
+    String studentId, String branch, String semester, String subject) async {
+  try {
+    DocumentSnapshot<Map<String, dynamic>> attendanceSnapshot =
+        await FirebaseFirestore.instance
+            .collection('Branch')
+            .doc(branch.toUpperCase())
+            .collection('Sem')
+            .doc(semester)
+            .collection('Subjects')
+            .doc(subject)
+            .collection('Attendance')
+            .doc(studentId)
+            .get();
 
-Future<double> fetchAttendancePercentage(String branch, String semester, String subject) async {
+    if (attendanceSnapshot.exists) {
+      Map<String, dynamic>? attendanceData = attendanceSnapshot.data();
+      if (attendanceData != null) {
+        Map<String, bool> parsedData = {};
+        attendanceData.forEach((key, value) {
+          if (value is bool) {
+            parsedData[key] = value;
+          }
+        });
+        return parsedData;
+      } else {
+        print("Attendance data not found for student: $studentId");
+        return {};
+      }
+    } else {
+      print("Attendance data not found for student: $studentId");
+      return {};
+    }
+  } catch (error) {
+    print('Error fetching attendance data: $error');
+    return {};
+  }
+}
+
+
+
+  // Method to calculate the percentage of lectures attended by a student for a subject
+  Future<double> calculateAttendancePercentageForStudent(
+      String email, String branch, String semester, String subject) async {
     try {
-      DocumentSnapshot<Map<String, dynamic>> attendanceSnapshot = await FirebaseFirestore.instance
-          .collection('attendance')
-          .doc(branch)
-          .collection(semester)
-          .doc(subject)
-          .get();
+      String studentId = await _getStudentIdByEmail(email);
+      Map<String, bool> attendanceData = await fetchAttendanceDataForStudent(
+          studentId, branch, semester, subject);
 
-      if (attendanceSnapshot.exists) {
-        Map<String, bool>? attendanceData =
-            attendanceSnapshot.data()?['attendanceData'];
-        if (attendanceData != null && attendanceData.isNotEmpty) {
-          int presentCount =
-              attendanceData.values.where((value) => value).length;
-          double totalStudents = attendanceData.length as double;
-          double attendancePercentage = (presentCount / totalStudents) * 100;
-          return attendancePercentage;
-        } else {
-          return 0.0;
-        }
+      int totalLectures = attendanceData.length;
+      int attendedLectures =
+          attendanceData.values.where((value) => value == true).length;
+
+      if (totalLectures > 0) {
+        return (attendedLectures / totalLectures) * 100;
       } else {
         return 0.0;
       }
     } catch (error) {
-      print('Error fetching attendance percentage: $error');
+      print('Error calculating attendance percentage: $error');
       return 0.0;
+    }
+  }
+
+  Future<String> _getStudentIdByEmail(String email) async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> userSnapshot = await FirebaseFirestore
+          .instance
+          .collection('students')
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (userSnapshot.docs.isNotEmpty) {
+        return userSnapshot.docs.first
+            .data()['name']; // Return the document ID as the student ID
+      } else {
+        throw Exception('Student not found with email: $email');
+      }
+    } catch (error) {
+      throw Exception('Error fetching student ID: $error');
     }
   }
 }

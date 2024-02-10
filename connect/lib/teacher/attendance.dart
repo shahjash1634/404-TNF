@@ -34,7 +34,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
   void fetchStudents() async {
     List<String> fetchedStudents = await databaseService
-        .fetchStudentsNamesForClass(widget.branch, widget.semester);
+        .fetchStudentsForBranchAndSem(widget.branch, widget.semester);
 
     setState(() {
       students = fetchedStudents;
@@ -44,20 +44,47 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Future<void> saveAttendance() async {
     String date = DateTime.now().toString();
-    await databaseService.saveAttendance(widget.branch, widget.semester, widget.subject, date, attendance);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Attendance saved successfully!'),
-      ),
-    );
+    try {
+      // Save attendance for each student
+      await Future.forEach(attendance.entries, (entry) async {
+        String studentId = entry.key;
+        bool isPresent = entry.value;
+
+        await databaseService.saveAttendanceForStudent(
+          widget.branch,
+          widget.semester,
+          widget.subject,
+          studentId,
+          date,
+          isPresent,
+        );
+      });
+
+      // Show a success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Attendance saved successfully!'),
+        ),
+      );
+    } catch (e) {
+      // Handle any errors that occur during the process
+      print('Error saving attendance: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error saving attendance. Please try again.'),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(156, 32, 3, 71),
-        title: const Text("Attendance Page"),
+        backgroundColor: Color(0xFF132248),
+        title: Text("Attendance Page"),
+        titleTextStyle: TextStyle(
+            color: Colors.white, fontSize: 27, fontWeight: FontWeight.w700),
         centerTitle: true,
         leading: InkWell(
           onTap: () {
@@ -72,6 +99,7 @@ class _AttendancePageState extends State<AttendancePage> {
           child: const Icon(Icons.arrow_back_ios_new),
         ),
       ),
+      backgroundColor: Color(0xFF132248),
       body: students == null
           ? Center(
               child: CircularProgressIndicator(),
@@ -80,8 +108,13 @@ class _AttendancePageState extends State<AttendancePage> {
               itemCount: students.length,
               itemBuilder: (context, index) {
                 return CheckboxListTile(
-                    title: Text(students[index]),
+                    side: const BorderSide(color: Colors.white),
+                    title: Text(
+                      students[index],
+                      style: TextStyle(color: Colors.white),
+                    ),
                     value: attendance[students[index]],
+                    checkColor: Colors.white,
                     onChanged: (bool? value) {
                       setState(() {
                         attendance[students[index]] = value ?? false;
@@ -89,10 +122,13 @@ class _AttendancePageState extends State<AttendancePage> {
                     });
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: saveAttendance,
-        child: Icon(Icons.save),
-      ),
+      floatingActionButton: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(
+                255, 2, 16, 53), // Change the background color to blue
+          ),
+          onPressed: saveAttendance,
+          child: Text("Save Attendance")),
     );
   }
 }
